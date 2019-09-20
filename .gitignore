@@ -9,3 +9,6 @@ out/*
 *.iml
 
 new 1.c
+
+App*
+00*

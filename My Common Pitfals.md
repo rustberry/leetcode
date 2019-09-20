@@ -28,5 +28,10 @@ boolean flag = a < b;  // true
 
 
 
-who `.length`
+#### The input may contain identical elements
 
+```
+[1,2,0,1]
+```
+
+#### Reset state 记得重置状态变量

@@ -35,6 +35,33 @@ class Solution {
         if (len < preS.size()) len = preS.size();
         return len;
         // "a", "", "aa", "aaaa", "zabcab"
-        // "abcabcbb"
+        // "aaab"
+        // "abcabcbb", "bacabc"
+    }
+    
+    public int theStandardSlidingWindowSolution(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
+        }
+        if (s.length() == 1) return 1;
+        
+        int i = 0;
+        int j = 1;
+        int ret = 1;
+        Set<Character> preSet = new HashSet<>();
+        preSet.add(s.charAt(0));
+        
+        for (;j < s.length();) {
+            if (!preSet.contains(s.charAt(j))) {
+                preSet.add(s.charAt(j));
+                ret = Math.max(ret, j - i + 1);  // note to plus one
+                 j++;
+            } else {
+                preSet.remove(s.charAt(i));
+                i++;
+            }
+        }
+        
+        return ret;
     }
 }
