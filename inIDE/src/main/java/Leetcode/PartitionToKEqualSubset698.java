@@ -1,8 +1,11 @@
 package Leetcode;
 
+import java.util.Arrays;
+
 public class PartitionToKEqualSubset698 {
     int cnt = 0;
-    int[] dp;
+    boolean finished;
+    int k;
 
     public boolean canPartitionKSubsets(int[] nums, int k) {
         if (nums.length < k) return false;
@@ -12,74 +15,52 @@ public class PartitionToKEqualSubset698 {
         }
         if (sum % k != 0) return false;
         sum /= k;
-//        dp = new int[sum + 1];
-//        if (nums[0] <= sum) dp[nums[0]] = 1;
-        for (int i = 0; i < nums.length ; i++) {
-            if (nums[i] == 0) continue;
-            rec(i, 0, nums, k, sum);
-        }
+        this.k = k;
+        int set = (1 << nums.length) - 1;  // a set with all elements
+        rec(set, 0, nums, 0, sum);
         return cnt == k;
     }
 
-    // rec(0, 0, nums, k, sum)
-    private boolean rec(int ind, int prev, int[] nums, int k, int sum) {
-        if (ind == nums.length - 1) {
-            if (prev + nums[ind] == sum) {
+    // Use an integer to minimize memory of the set. Time Limit Exceeded due to exhaustive search.
+    private void rec(int set, int ind, int[] a, int curSum, int sum) {
+        if (ind == a.length) {
+            if (curSum == sum) cnt++;
+            if (cnt == k) finished = true;
+            else cnt = 0;
+            return;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (finished) break;
+            if ((set >> i & 1) == 0) continue;
+            int tmp = curSum + a[i];
+            if (tmp > sum) continue;
+
+            set &= ~(1 << i);  // remove from set
+            if (tmp == sum) {
                 cnt++;
-                nums[ind] = 0;
-                return true;
+                tmp = 0;
             }
-            return false;
-        }
+            rec(set, ind + 1, a, tmp, sum);
 
-        if (prev + nums[ind] == sum) {
-            nums[ind] = 0;
-            cnt++;
-            return true;
-        } else if (prev + nums[ind] > sum || nums[ind] == 0) {
-//            for (int i = ind + 1; i < nums.length; i++) {
-//                if (rec(i, prev, nums, k, sum)) {
-//                    return true;
-//                }
-//            }
-            return false;
+            set |= 1 << i;  // undo
         }
-
-        prev += nums[ind];
-        for (int i = ind + 1; i < nums.length; i++) {
-            if (rec(i, prev, nums, k, sum)) {
-                nums[ind] = 0;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean canPartitionKSubsets_failed(int[] nums, int k) {
-        if (nums.length < k) return false;
-        int sum = 0;
-        for (int num : nums) {
-            sum += num;
-        }
-        if (sum % k != 0) return false;
-        sum /= k;
-        int[] dp = new int[sum + 1];
-        if (nums[0] <= sum) dp[nums[0]] = 1;
-        for (int i = 1; i < nums.length; i++) {
-            for (int j = sum; j >= 1; j--) {
-                if (j - nums[i] >= 1 && dp[j - nums[i]] != 0) {
-                    dp[j] += dp[j - nums[i]];
-                }
-            }
-            if (nums[i] <= sum) dp[nums[i]] += 1;
-        }
-        return dp[sum] >= k;
     }
 
     public static void main(String[] args) {
         PartitionToKEqualSubset698 t = new PartitionToKEqualSubset698();
-        System.out.println(
-                t.canPartitionKSubsets(new int[]{10,10,10,7,7,7,7,7,7,6,6,6}, 3)
-        );
+        int[][] test = new int[][]{
+                {4, 3, 2, 3, 5, 2, 1}, {10, 10, 10, 7, 7, 7, 7, 7, 7, 6, 6, 6},
+                {2, 2, 2, 2, 3, 4, 5},
+        };
+        int[] k = new int[]{
+                4, 3, 4
+        };
+
+        for (int i = 0; i < k.length; i++) {
+            t.cnt = 0;
+            t.finished = false;
+            System.out.print(Arrays.toString(test[i]) + ", " + k[i] + ":\t");
+            System.out.println(t.canPartitionKSubsets(test[i], k[i]) + "\tcnt: " + t.cnt);
+        }
     }
 }
